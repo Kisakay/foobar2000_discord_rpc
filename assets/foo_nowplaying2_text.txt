@@ -1,0 +1,6 @@
+$if(%isplaying%,
+  $if(%ispaused%,
+Paused: %artist% - %title%,
+Play: %artist% - %title%
+  ),
+)
