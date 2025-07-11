@@ -1,0 +1,15 @@
+# github.com/fsnotify/fsnotify v1.9.0
+## explicit; go 1.17
+github.com/fsnotify/fsnotify
+github.com/fsnotify/fsnotify/internal
+# github.com/hugolgst/rich-go v0.0.0-20240715122152-74618cc1ace2
+## explicit; go 1.17
+github.com/hugolgst/rich-go/client
+github.com/hugolgst/rich-go/ipc
+# golang.org/x/sys v0.34.0
+## explicit; go 1.23.0
+golang.org/x/sys/unix
+golang.org/x/sys/windows
+# gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce
+## explicit
+gopkg.in/natefinch/npipe.v2
