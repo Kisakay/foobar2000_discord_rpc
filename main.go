@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	clientID       = "1393213730786906273"
-	nowPlayingPath = "/Users/anais/Documents/nowplaying.txt"
+	clientID              = "1393213730786906273"
+	nowPlayingPath        = "/Users/anais/Documents/nowplaying.txt"
+	stringForClosedFoobar = "Stopped Running"
 )
 
 var isConnected = false
@@ -34,19 +35,21 @@ func readFirstLine(path string) (string, error) {
 }
 
 func updateRPC(state string) {
-	if state == "not running" {
+	if state == stringForClosedFoobar {
 		if isConnected {
 			client.Logout()
 			isConnected = false
-			fmt.Println("RPC désactivé (not running)")
+			fmt.Println("foobar2000 is closed. RPC is hidden")
 		}
 		return
 	}
 
 	if !isConnected {
 		err := client.Login(clientID)
+		fmt.Println("foobar2000 is running. Starting the RPC")
+
 		if err != nil {
-			fmt.Println("Erreur connexion RPC:", err)
+			fmt.Println("RPC connection error: ", err)
 			return
 		}
 		isConnected = true
@@ -59,7 +62,7 @@ func updateRPC(state string) {
 	})
 
 	if err != nil {
-		fmt.Println("Erreur mise à jour RPC:", err)
+		fmt.Println("Error while the RPC update: ", err)
 	}
 }
 
@@ -69,18 +72,18 @@ func main() {
 		updateRPC(initialState)
 	}
 
-	fmt.Println("RPC actif. Surveillance de nowplaying.txt...")
+	fmt.Println("foobar2000_discord_rpc is running. Watching the nowplaying.txt...")
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		fmt.Println("Erreur watcher:", err)
+		fmt.Println("Watcher error: ", err)
 		os.Exit(1)
 	}
 	defer watcher.Close()
 
 	err = watcher.Add(nowPlayingPath)
 	if err != nil {
-		fmt.Println("Erreur add watcher:", err)
+		fmt.Println("Watcher add error: ", err)
 		os.Exit(1)
 	}
 
@@ -101,7 +104,7 @@ func main() {
 					}
 				}
 			case err := <-watcher.Errors:
-				fmt.Println("Erreur watcher:", err)
+				fmt.Println("Watcher error: ", err)
 			}
 		}
 	}()
@@ -110,5 +113,5 @@ func main() {
 	if isConnected {
 		client.Logout()
 	}
-	fmt.Println("\nFermeture de l'application...")
+	fmt.Println("\nSIGINT signal called. foobar2000_discord_rpc exiting...")
 }
