@@ -8,8 +8,8 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/altfoxie/drpc"
 	"github.com/fsnotify/fsnotify"
-	"github.com/kisakay/rich-go/client"
 )
 
 const (
@@ -18,7 +18,10 @@ const (
 	stringForClosedFoobar = "Stopped Running"
 )
 
-var isConnected = false
+var (
+	client      *drpc.Client
+	isConnected = false
+)
 
 func readFirstLine(path string) (string, error) {
 	file, err := os.Open(path)
@@ -37,7 +40,7 @@ func readFirstLine(path string) (string, error) {
 func updateRPC(state string) {
 	if state == stringForClosedFoobar {
 		if isConnected {
-			client.Logout()
+			client.Close()
 			isConnected = false
 			fmt.Println("foobar2000 is closed. RPC is hidden")
 		}
@@ -45,28 +48,36 @@ func updateRPC(state string) {
 	}
 
 	if !isConnected {
-		err := client.Login(clientID)
 		fmt.Println("foobar2000 is running. Starting the RPC")
-
+		err := client.Connect()
 		if err != nil {
-			fmt.Println("RPC connection error: ", err)
+			fmt.Println("RPC connection error:", err)
 			return
 		}
 		isConnected = true
 	}
 
-	err := client.SetActivity(client.Activity{
-		State:      state,
-		LargeImage: "foobar2000",
-		LargeText:  "www.foobar2000.org",
+	err := client.SetActivity(drpc.Activity{
+		State: state,
+		Assets: &drpc.Assets{
+			LargeImage: "foobar2000",
+			LargeText:  "www.foobar2000.org",
+		},
 	})
 
 	if err != nil {
-		fmt.Println("Error while the RPC update: ", err)
+		fmt.Println("Error while updating the RPC:", err)
 	}
 }
 
 func main() {
+	var err error
+	client, err = drpc.New(clientID)
+	if err != nil {
+		fmt.Println("RPC connection error: ", err)
+		os.Exit(1)
+	}
+
 	initialState, err := readFirstLine(nowPlayingPath)
 	if err == nil {
 		updateRPC(initialState)
@@ -111,7 +122,7 @@ func main() {
 
 	<-sigChan
 	if isConnected {
-		client.Logout()
+		client.Close()
 	}
 	fmt.Println("\nSIGINT signal called. foobar2000_discord_rpc exiting...")
 }

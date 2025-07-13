@@ -1,7 +1,9 @@
+github.com/altfoxie/drpc v0.0.0-20240929140334-e714e6291275 h1:CZsW9r4+WUPyVaulBlF8GPTznDw4o+6y6sr15YMK8XA=
+github.com/altfoxie/drpc v0.0.0-20240929140334-e714e6291275/go.mod h1:vV4ApNpKIGN4PT5NYmWqw1IEIsFzqj0pspTUSltS+gk=
 github.com/fsnotify/fsnotify v1.9.0 h1:2Ml+OJNzbYCTzsxtv8vKSFD9PbJjmhYF14k/jKC7S9k=
 github.com/fsnotify/fsnotify v1.9.0/go.mod h1:8jBTzvmWwFyi3Pb8djgCCO5IBqzKJ/Jwo8TRcHyHii0=
-github.com/kisakay/rich-go v0.0.0-20250712185309-efe50e1955dc h1:3rWMHi53l/9F4/44lBzLuw5Ds+8b6z3wUAqrtNl3B9I=
-github.com/kisakay/rich-go v0.0.0-20250712185309-efe50e1955dc/go.mod h1:Cq37KyDCaLGSWQrcE/zvcoHtqPJco9Wxq0gbpOXB/PI=
+github.com/google/uuid v1.5.0 h1:1p67kYwdtXjb0gL0BPiP1Av9wiZPo5A8z2cWkTZ+eyU=
+github.com/google/uuid v1.5.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 golang.org/x/sys v0.34.0 h1:H5Y5sJ2L2JRdyv7ROF1he/lPdvFsd0mJHFw2ThKHxLA=
 golang.org/x/sys v0.34.0/go.mod h1:BJP2sWEmIv4KK5OTEluFJCKSidICx8ciO85XgH3Ak8k=
 gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce h1:+JknDZhAj8YMt7GC73Ei8pv4MzjDUNPHgQWJdtMAaDU=
