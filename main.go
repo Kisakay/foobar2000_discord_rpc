@@ -63,10 +63,6 @@ func updateRPC(state string) {
 
 	if err != nil {
 		fmt.Println("Error while the RPC update: ", err)
-		// Most common when Discord has been restarted and the previous IPC socket is closed.
-		// Reset the connection so that the next update triggers a fresh login.
-		client.Logout()
-		isConnected = false
 	}
 }
 
