@@ -1,6 +1,8 @@
 $if(%isplaying%,
-  $if(%ispaused%,
-Paused: %artist% - %title%,
-Play: %artist% - %title%
-  ),
-)
+$if(%ispaused%,
+Paused,
+Playing
+)$char(10)
+%artist%$char(10)
+%title%$char(10)
+%album%$char(10))

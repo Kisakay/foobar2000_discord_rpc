@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"os/signal"
 	"strings"
@@ -23,50 +22,62 @@ var (
 	isConnected = false
 )
 
-func readFirstLine(path string) (string, error) {
+func readAllFile(path string) ([]string, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer file.Close()
 
+	var lines []string
 	scanner := bufio.NewScanner(file)
-	if scanner.Scan() {
-		return strings.TrimSpace(scanner.Text()), nil
+
+	for scanner.Scan() {
+		lines = append(lines, strings.TrimSpace(scanner.Text()))
 	}
-	return "", scanner.Err()
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return lines, nil
 }
 
-func updateRPC(state string) {
-	if state == stringForClosedFoobar {
+func updateRPC(state []string) {
+	if state[0] == stringForClosedFoobar {
 		if isConnected {
 			client.Close()
 			isConnected = false
-			fmt.Println("foobar2000 is closed. RPC is hidden")
+			println("foobar2000 is closed. RPC is hidden")
 		}
 		return
 	}
 
 	if !isConnected {
-		fmt.Println("foobar2000 is running. Starting the RPC")
+		println("foobar2000 is running. Starting the RPC")
 		err := client.Connect()
 		if err != nil {
-			fmt.Println("RPC connection error:", err)
+			println("RPC connection error:", err)
 			return
 		}
 		isConnected = true
 	}
 
-	err := client.SetActivity(drpc.Activity{
-		State: state,
-		Assets: &drpc.Assets{
-			LargeImage: "foobar2000",
-			LargeText:  "www.foobar2000.org",
-		},
-	})
+	if len(state) == 4 {
+		err := client.SetActivity(drpc.Activity{
+			Details: state[1] + ": " + state[2],
+			State:   state[3],
+			Assets: &drpc.Assets{
+				LargeImage: "foobar2000",
+				LargeText:  "www.foobar2000.org",
+				SmallImage: chooseSmallImageWithStatus(state[0]),
+				SmallText:  chooseSmallImageWithStatus(state[0]),
+			},
+		})
 
-	if err != nil {
-		fmt.Println("Error while updating the RPC:", err)
+		if err != nil {
+			println("Error while updating the RPC:", err)
+		}
 	}
 }
 
@@ -74,27 +85,27 @@ func main() {
 	var err error
 	client, err = drpc.New(clientID)
 	if err != nil {
-		fmt.Println("RPC connection error: ", err)
+		println("RPC connection error: ", err)
 		os.Exit(1)
 	}
 
-	initialState, err := readFirstLine(nowPlayingPath)
+	initialState, err := readAllFile(nowPlayingPath)
 	if err == nil {
 		updateRPC(initialState)
 	}
 
-	fmt.Println("foobar2000_discord_rpc is running. Watching the nowplaying.txt...")
+	println("foobar2000_discord_rpc is running. Watching the nowplaying.txt...")
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		fmt.Println("Watcher error: ", err)
+		println("Watcher error: ", err)
 		os.Exit(1)
 	}
 	defer watcher.Close()
 
 	err = watcher.Add(nowPlayingPath)
 	if err != nil {
-		fmt.Println("Watcher add error: ", err)
+		println("Watcher add error: ", err)
 		os.Exit(1)
 	}
 
@@ -108,14 +119,14 @@ func main() {
 			select {
 			case event := <-watcher.Events:
 				if event.Op&fsnotify.Write == fsnotify.Write {
-					state, err := readFirstLine(nowPlayingPath)
-					if err == nil && state != current {
+					state, err := readAllFile(nowPlayingPath)
+					if err == nil && !slicesEqual(state, current) {
 						updateRPC(state)
 						current = state
 					}
 				}
 			case err := <-watcher.Errors:
-				fmt.Println("Watcher error: ", err)
+				println("Watcher error: ", err)
 			}
 		}
 	}()
@@ -124,5 +135,25 @@ func main() {
 	if isConnected {
 		client.Close()
 	}
-	fmt.Println("\nSIGINT signal called. foobar2000_discord_rpc exiting...")
+	println("\nSIGINT signal called. foobar2000_discord_rpc exiting...")
+}
+
+func slicesEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func chooseSmallImageWithStatus(state string) string {
+	if state == "Playing" {
+		return "playing"
+	} else {
+		return "pause"
+	}
 }
